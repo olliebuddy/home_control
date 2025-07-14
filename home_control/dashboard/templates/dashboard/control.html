@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Assistant Control Panel</title>
+</head>
+<body>
+    <h1>Home Assistant Dashboard</h1>
+
+    <p><strong> Rollercoaster Light Power:</strong> {{ roller_power }}</p>
+    <p><strong> Tesla Wall Connector Energy:</strong> {{ tesla_power }}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Toggle Dining Lamp</button>
+    </form>
+</body>
+</html>
