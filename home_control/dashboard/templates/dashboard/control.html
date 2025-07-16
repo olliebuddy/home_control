@@ -8,7 +8,26 @@
 
     <p><strong> Rollercoaster Light Power:</strong> {{ roller_power }}</p>
     <p><strong> Tesla Wall Connector Energy:</strong> {{ tesla_power }}</p>
-
+    <h2>Live Time (Sydney)</h2>
+    <p id="sydney-time" style="font-size: 1.5em; font-weight: bold;"></p>
+    
+    <script>
+    function updateSydneyTime() {
+        const sydneyTime = new Date().toLocaleString("en-AU", {
+            timeZone: "Australia/Sydney",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+        });
+        document.getElementById("sydney-time").textContent = sydneyTime;
+    }
+    
+    // Update every second
+    setInterval(updateSydneyTime, 1000);
+    updateSydneyTime(); // initial call
+    </script>
+    
     <form method="POST">
         {% csrf_token %}
         <button type="submit">Toggle Dining Lamp</button>
