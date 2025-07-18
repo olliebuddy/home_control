@@ -5,7 +5,8 @@ BASE_URL = "http://homeassistant.local:8123/api"
 ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyYTQyYWFjZGNlYzg0MWRkYjUwZDFiY2I2ODYzNTIzMiIsImlhdCI6MTc1MTA5NTQwNSwiZXhwIjoyMDY2NDU1NDA1fQ.bM6Pnqb-jt1Ee1lMV7CyeiJHCkCUkNMZMcQ9muTTDE4"
 LIGHT_ENTITY_ID = "light.dining_lamp"
 ROLLERCOASTER_ENTITY_ID = "rollercoaster_lights_power"
-TESLA_ENTITY_ID = "sensor.tesla_wall_connector_session_energy"
+TESLA_SESSION_ENTITY_ID = "sensor.tesla_wall_connector_session_energy"
+TESLA_ENERGY_ENTITY_ID = "sensor.tesla_wall_connector_energy"
 
 HEADERS = {
     "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -33,11 +34,14 @@ def control_panel(request):
         return redirect("dashboard")
     
     roller_power = get_sensor_value(ROLLERCOASTER_ENTITY_ID)
-    tesla_power = get_sensor_value(TESLA_ENTITY_ID)
+    tesla_power = get_sensor_value(TESLA_SESSION_ENTITY_ID)
+    tesla_energy = get_sensor_value(TESLA_ENERGY_ENTITY_ID)
+    
 
     context = {
         "roller_power": roller_power,
-        "tesla_power": tesla_power
+        "tesla_power": tesla_power,
+        "tesla_energy": tesla_energy,
     }
 
     return render(request, "dashboard/control.html", context)

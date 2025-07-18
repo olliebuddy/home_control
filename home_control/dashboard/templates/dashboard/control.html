@@ -6,28 +6,46 @@
 <body>
     <h1>Home Assistant Dashboard</h1>
 
-    <p><strong> Rollercoaster Light Power:</strong> {{ roller_power }}</p>
-    <p><strong> Tesla Wall Connector Energy:</strong> {{ tesla_power }}</p>
+    <p><strong>Rollercoaster Light Power:</strong> {{ roller_power }}</p>
+    <p><strong>Tesla Wall Connector Session Energy:</strong> {{ tesla_power }}</p>
+    <p><strong>Tesla Wall Connector Energy:</strong> {{ tesla_energy }}</p>
+
     <h2>Live Time (Sydney)</h2>
     <p id="sydney-time" style="font-size: 1.5em; font-weight: bold;"></p>
+
     
+    <p id="off-peak-message" style="color: green; font-weight: bold;"></p>
+
     <script>
     function updateSydneyTime() {
-        const sydneyTime = new Date().toLocaleString("en-AU", {
+        const now = new Date().toLocaleString("en-AU", {
             timeZone: "Australia/Sydney",
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
             hour12: false
         });
-        document.getElementById("sydney-time").textContent = sydneyTime;
+
+        const date = new Date();
+        const hours = date.toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: '2-digit', hour12: false });
+        const hourInt = parseInt(hours, 10);
+
+        // Show off-peak message if time is between 0-5 or 11-14
+        const message = document.getElementById("off-peak-message");
+        if ((hourInt >= 0 && hourInt < 5) || (hourInt >= 11 && hourInt < 14)) {
+            message.textContent = "It is recommended to use power now. Rates are in off-peak period.";
+        } else {
+            message.textContent = ""; // Clear message outside off-peak
+        }
+
+        document.getElementById("sydney-time").textContent = now;
     }
-    
+
     // Update every second
     setInterval(updateSydneyTime, 1000);
-    updateSydneyTime(); // initial call
+    updateSydneyTime();
     </script>
-    
+
     <form method="POST">
         {% csrf_token %}
         <button type="submit">Toggle Dining Lamp</button>
