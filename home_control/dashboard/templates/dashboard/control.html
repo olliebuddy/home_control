@@ -66,7 +66,7 @@
             background-color: #246f48;
         }
 
-        /* a little "off" styling here for human-like imperfections */
+        
         .form-wrapper {
             margin-left: 8px;
             margin-top: 15px;
@@ -77,8 +77,7 @@
             color: #333;
         }
 
-        /* accidental double h3 in one place (deliberately left weird) */
-        h3 {
+         {
             color: #444;
             font-size: 1.1em;
         }
@@ -94,6 +93,12 @@
         <p><strong>Tesla Wall Connector Energy:</strong> {{ tesla_energy }}</p>
         <p><strong>Solar Panel Energy Today:</strong> {{ solar_today }}</p>
         <p><strong>Coffee Machine Power:</strong> {{ coffee_energy }}</p>
+        <p><strong>Home Server Power:</strong> {{ home_server_power }}</p>
+
+        <p><strong>Dining Lamp:</strong> {{ devices.dining_lamp.watts }} W</p>
+        <p><strong>Bedside Lamp:</strong> {{ devices.bedside_lamp.watts }} W</p>
+        <p><strong>Cupboard Lights:</strong> {{ devices.cupboard_lights.watts }} W</p>
+        <p><strong>Kitchen Bench Socket:</strong> {{ devices.kitchen_bench.watts }} W</p>
     </div>
 
     <div class="sensor-section">
@@ -101,37 +106,69 @@
         <p class="time-box" id="sydney-time">Loading...</p>
         <p class="offpeak" id="off-peak-message"></p>
     </div>
-
+    
     <div class="sensor-section">
-        <h3>Toggle Controls</h3>
-
-        <form method="POST">
+        <h3>Controls</h3>
+    
+        <p><strong>Dining Lamp:</strong></p>
+        <form method="POST" style="display: inline;">
             {% csrf_token %}
-            <button type="submit" name="toggle_dining_lamp">Toggle Dining Lamp</button>
+            <button type="submit" name="dining_lamp_on">ON</button>
         </form>
-        
-        <form method="POST">
+        <form method="POST" style="display: inline; margin-left: 5px;">
             {% csrf_token %}
-            <button type="submit" name="toggle_bedside_lamp">Toggle Bedside Lamp</button>
+            <button type="submit" name="dining_lamp_off">OFF</button>
         </form>
-        
-        <form method="POST">
+    
+        <p><strong>Bedside Lamp:</strong></p>
+        <form method="POST" style="display: inline;">
             {% csrf_token %}
-            <button type="submit" name="toggle_cupboard_lights">Toggle Cupboard Lights</button>
+            <button type="submit" name="bedside_lamp_on">ON</button>
         </form>
-        
-        <form method="POST">
+        <form method="POST" style="display: inline; margin-left: 5px;">
             {% csrf_token %}
-            <button type="submit" name="toggle_coffee_machine">Toggle Coffee Machine</button>
+            <button type="submit" name="bedside_lamp_off">OFF</button>
         </form>
-        
-        <form method="POST">
+    
+        <p><strong>Cupboard Lights:</strong></p>
+        <form method="POST" style="display: inline;">
             {% csrf_token %}
-            <button type="submit" name="toggle_kitchen_bench">Toggle Kitchen Bench Socket</button>
+            <button type="submit" name="cupboard_lights_on">ON</button>
         </form>
-       
-        </div>
-
+        <form method="POST" style="display: inline; margin-left: 5px;">
+            {% csrf_token %}
+            <button type="submit" name="cupboard_lights_off">OFF</button>
+        </form>
+    
+        <p><strong>Coffee Machine:</strong></p>
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" name="coffee_machine_on">ON</button>
+        </form>
+        <form method="POST" style="display: inline; margin-left: 5px;">
+            {% csrf_token %}
+            <button type="submit" name="coffee_machine_off">OFF</button>
+        </form>
+    
+        <p><strong>Kitchen Bench Socket:</strong></p>
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" name="kitchen_bench_on">ON</button>
+        </form>
+        <form method="POST" style="display: inline; margin-left: 5px;">
+            {% csrf_token %}
+            <button type="submit" name="kitchen_bench_off">OFF</button>
+        </form>
+    
+        <p><strong>Home Server Power:</strong></p>
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" name="home_server_on">ON</button>
+        </form>
+        <form method="POST" style="display: inline; margin-left: 5px;">
+            {% csrf_token %}
+            <button type="submit" name="home_server_off">OFF</button>
+        </form>
     </div>
 
     <div class="washing-machine-section" style="margin-top: 40px; padding: 20px; border: 2px solid #ccc; border-radius: 10px;">
@@ -150,8 +187,55 @@
     </div>
   </body>
   </html>
+ 
+  
 
-    <script>
+  <div class="spa-section" style="margin-top: 40px; padding: 20px; border: 2px solid #ccc; border-radius: 10px;">
+    <h2>Spa</h2>
+    
+    <form method="post" style="margin-bottom: 10px;">
+      {% csrf_token %}
+      <button type="submit" name="toggle_spa_light" class="btn btn-primary">
+        Toggle Spa Light
+      </button>
+    </form>
+  
+    <form method="post" style="margin-bottom: 10px;">
+      {% csrf_token %}
+      <button type="submit" name="toggle_spa_pump_1" class="btn btn-primary">
+        Toggle Spa Pump 1
+      </button>
+    </form>
+  
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" name="toggle_spa_pump_2" class="btn btn-primary">
+        Toggle Spa Pump 2
+      </button>
+    </form>
+  </div>
+   
+  <div class="sensor-section" style="margin-top: 40px;">
+    <h2>Low-Cost Electricity Time</h2>
+
+    <form method="POST" action="{% url 'set_low_cost_time' %}">
+        {% csrf_token %}
+        <label for="low_cost_time">Select time:</label>
+        <input type="time" id="low_cost_time" name="low_cost_time"
+               value="{{ low_cost_time|default_if_none:'' }}" required>
+        <button type="submit">Save Time</button>
+    </form>
+
+    {% if low_cost_time %}
+        <p>Current low-cost time: 
+            <span class="time-box">{{ low_cost_time }}</span>
+        </p>
+    {% else %}
+        <p>No low-cost time set yet.</p>
+    {% endif %}
+</div> 
+
+  <script>
     function updateSydneyTime() {
         const now = new Date().toLocaleString("en-AU", {
             timeZone: "Australia/Sydney",
