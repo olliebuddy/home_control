@@ -2,19 +2,154 @@
 <html>
 <head>
     <title>Home Assistant Control Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            background-color: #1e90ff;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+
+        .sensor-section {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .sensor-section p {
+            font-size: 1.1em;
+            margin: 8px 0;
+        }
+
+        .offpeak {
+            color: green;
+            font-weight: bold;
+            margin-top: -5px;
+        }
+
+        .time-box {
+            font-size: 1.6em;
+            font-weight: bold;
+            background-color: #eef;
+            padding: 10px;
+            display: inline-block;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+
+        form {
+            margin-bottom: 12px;
+        }
+
+        button {
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #246f48;
+        }
+
+        /* a little "off" styling here for human-like imperfections */
+        .form-wrapper {
+            margin-left: 8px;
+            margin-top: 15px;
+        }
+
+        h2 {
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        /* accidental double h3 in one place (deliberately left weird) */
+        h3 {
+            color: #444;
+            font-size: 1.1em;
+        }
+    </style>
 </head>
 <body>
     <h1>Home Assistant Dashboard</h1>
 
-    <p><strong>Rollercoaster Light Power:</strong> {{ roller_power }}</p>
-    <p><strong>Tesla Wall Connector Session Energy:</strong> {{ tesla_power }}</p>
-    <p><strong>Tesla Wall Connector Energy:</strong> {{ tesla_energy }}</p>
+    <div class="sensor-section">
+        <h3>Devices Monitoring</h3>
+        <p><strong>Rollercoaster Light Power:</strong> {{ roller_power }}</p>
+        <p><strong>Tesla Wall Connector Session Energy:</strong> {{ tesla_power }}</p>
+        <p><strong>Tesla Wall Connector Energy:</strong> {{ tesla_energy }}</p>
+        <p><strong>Solar Panel Energy Today:</strong> {{ solar_today }}</p>
+        <p><strong>Coffee Machine Power:</strong> {{ coffee_energy }}</p>
+    </div>
 
-    <h2>Live Time (Sydney)</h2>
-    <p id="sydney-time" style="font-size: 1.5em; font-weight: bold;"></p>
+    <div class="sensor-section">
+        <h2>Live Time (Sydney)</h2>
+        <p class="time-box" id="sydney-time">Loading...</p>
+        <p class="offpeak" id="off-peak-message"></p>
+    </div>
 
-    
-    <p id="off-peak-message" style="color: green; font-weight: bold;"></p>
+    <div class="sensor-section">
+        <h3>Toggle Controls</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" name="toggle_dining_lamp">Toggle Dining Lamp</button>
+        </form>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" name="toggle_bedside_lamp">Toggle Bedside Lamp</button>
+        </form>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" name="toggle_cupboard_lights">Toggle Cupboard Lights</button>
+        </form>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" name="toggle_coffee_machine">Toggle Coffee Machine</button>
+        </form>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" name="toggle_kitchen_bench">Toggle Kitchen Bench Socket</button>
+        </form>
+       
+        </div>
+
+    </div>
+
+    <div class="washing-machine-section" style="margin-top: 40px; padding: 20px; border: 2px solid #ccc; border-radius: 10px;">
+        <h2>Washing Machine</h2>
+        <p><strong>Status:</strong> {{ washing_status }}</p>
+        <p><strong>Hours Remaining:</strong> {{ washing_machine_delay }}</p>
+      
+        <form method="POST" action="{% url 'set_washing_machine_delay' %}"> 
+            {% csrf_token %}
+            <label for="washing_delay">Set Delay (hours):</label>
+            <input type="number" id="washing_delay" name="washing_delay" min="0" max="24" required>
+            <button type="submit">Set Delay</button>
+        </form>    
+    </div>
+  
+    </div>
+  </body>
+  </html>
 
     <script>
     function updateSydneyTime() {
@@ -27,28 +162,26 @@
         });
 
         const date = new Date();
-        const hours = date.toLocaleString("en-AU", { timeZone: "Australia/Sydney", hour: '2-digit', hour12: false });
+        const hours = date.toLocaleString("en-AU", {
+            timeZone: "Australia/Sydney",
+            hour: '2-digit',
+            hour12: false
+        });
         const hourInt = parseInt(hours, 10);
 
-        // Show off-peak message if time is between 0-5 or 11-14
         const message = document.getElementById("off-peak-message");
         if ((hourInt >= 0 && hourInt < 5) || (hourInt >= 11 && hourInt < 14)) {
-            message.textContent = "It is recommended to use power now. Rates are in off-peak period.";
+            message.textContent =
+                "It is recommended to use power now. Rates are in off-peak period.";
         } else {
-            message.textContent = ""; // Clear message outside off-peak
+            message.textContent = "";
         }
 
         document.getElementById("sydney-time").textContent = now;
     }
 
-    // Update every second
     setInterval(updateSydneyTime, 1000);
     updateSydneyTime();
     </script>
-
-    <form method="POST">
-        {% csrf_token %}
-        <button type="submit">Toggle Dining Lamp</button>
-    </form>
 </body>
 </html>
