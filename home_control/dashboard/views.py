@@ -1,10 +1,11 @@
 import requests
 from django.shortcuts import render, redirect
+from datetime import datetime, time
 
 BASE_URL = "http://homeassistant.local:8123/api"
 ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyYTQyYWFjZGNlYzg0MWRkYjUwZDFiY2I2ODYzNTIzMiIsImlhdCI6MTc1MTA5NTQwNSwiZXhwIjoyMDY2NDU1NDA1fQ.bM6Pnqb-jt1Ee1lMV7CyeiJHCkCUkNMZMcQ9muTTDE4"
 DINNINGLIGHT_ENTITY_ID = "light.dining_lamp"
-ROLLERCOASTER_ENTITY_ID = "sensor.rollercoaster_lights_power"
+ROLLERCOASTER_SENSOR_ENTITY_ID = "sensor.rollercoaster_lights_power"
 TESLA_SESSION_ENTITY_ID = "sensor.tesla_wall_connector_session_energy"
 TESLA_ENERGY_ENTITY_ID = "sensor.tesla_wall_connector_energy"
 BEDSIDELAMP_ENTITY_ID = "light.bedside_lamp"
@@ -20,8 +21,12 @@ SPA_PUMP1_ENTITY_ID = "fan.sibp601x_pump_1"
 SPA_PUMP2_ENTITY_ID = "fan.sibp601x_pump_2"
 HOME_SERVER_ENTITY_ID = "switch.pc191ha_3_socket_1"
 HOME_SERVER_POWER_SENSOR_ID = "sensor.pc191ha_3_power"
-
-
+ROLLER_COASTER_LIGHTS_ENTITY_ID = "switch.rollercoaster_lights_socket_1"
+SOILSDCPOWER_PV1_ENTITY_ID = "sensor.solis_dc_power_pv1"
+SOILSDCPOWER_PV2_ENTITY_ID = "sensor.solis_dc_power_pv2"
+LOW_COST_START_ENTITY_ID = "input_datetime.low_cost_start"
+LOW_COST_END_ENTITY_ID = "input_datetime.low_cost_end"
+GARAGE_DOOR_ENTITY_ID = "switch.garage_door_socket"
 
 HEADERS = {
     "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -98,11 +103,13 @@ def control_panel(request):
             turn_on(COFFEE_ENTITY_ID, domain="switch")
         elif "coffee_machine_off" in request.POST:
             turn_off(COFFEE_ENTITY_ID, domain="switch")
-        elif "spa_light_on" in request.POST:
+        elif"spa_light_on" in request.POST:
             turn_on(SPALIGHT_ENTITY_ID)
-            turn_on(SPA_PUMP1_ENTITY_ID, domain="fan")
         elif "spa_light_off" in request.POST:
             turn_off(SPALIGHT_ENTITY_ID)
+        elif "spa_pump_1_on" in request.POST:
+            turn_on(SPA_PUMP1_ENTITY_ID, domain="fan")
+        elif "spa_pump_1_off" in request.POST:
             turn_off(SPA_PUMP1_ENTITY_ID, domain="fan")
         elif "spa_pump_2_on" in request.POST:
             turn_on(SPA_PUMP2_ENTITY_ID, domain="fan")
@@ -112,17 +119,43 @@ def control_panel(request):
             turn_on(HOME_SERVER_ENTITY_ID, domain="switch")
         elif "home_server_off" in request.POST:
             turn_off(HOME_SERVER_ENTITY_ID, domain="switch")
+        elif "roller_coaster_lights_on" in request.POST:
+            turn_on(ROLLER_COASTER_LIGHTS_ENTITY_ID)
+        elif "roller_coaster_lights_off" in request.POST:
+            turn_off(ROLLER_COASTER_LIGHTS_ENTITY_ID)
+        elif "garage_door_on" in request.POST:
+            turn_on(GARAGE_DOOR_ENTITY_ID, domain="switch")
+        elif "garage_door_off" in request.POST:
+            turn_off(GARAGE_DOOR_ENTITY_ID, domain="switch")
         return redirect("dashboard")
+
    
-    roller_power = get_sensor_value(ROLLERCOASTER_ENTITY_ID)
+    roller_power = get_sensor_value(ROLLERCOASTER_SENSOR_ENTITY_ID)
     tesla_power = get_sensor_value(TESLA_SESSION_ENTITY_ID)
     tesla_energy = get_sensor_value(TESLA_ENERGY_ENTITY_ID)
     solar_today = get_sensor_value(SOLAR_TODAY_ENTITY_ID)
+    soils_power_pv1 = get_sensor_value(SOILSDCPOWER_PV1_ENTITY_ID)
+    soils_power_pv2 = get_sensor_value(SOILSDCPOWER_PV2_ENTITY_ID)
     coffee_energy = get_sensor_value(COFFEEMACHINE_ENERGY_ENTITY_ID)
     washing_status =  get_sensor_value(WASHING_MACHINE_ENTITY_ID)
     washing_machine_delay = get_sensor_value(WASHING_MACHINE_STATUS_ENTITY_ID)
     home_server_power = get_sensor_value(HOME_SERVER_POWER_SENSOR_ID)
-    low_cost_time = get_sensor_value("input_datetime.low_cost_time")
+    low_cost_start = get_sensor_value(LOW_COST_START_ENTITY_ID).split()[0]
+    low_cost_end = get_sensor_value(LOW_COST_END_ENTITY_ID).split()[0]
+
+    show_popup = False
+    try:
+        now = datetime.now().time()
+        start = datetime.strptime(low_cost_start, "%H:%M:%S").time()
+        end = datetime.strptime(low_cost_end, "%H:%M:%S").time()
+
+        if start <= end:
+            show_popup = start <= now <= end
+        else:
+            # Handle overnight periods (e.g., 22:00 to 06:00)
+            show_popup = now >= start or now <= end
+    except Exception:
+        pass
 
     devices = {
     "dining_lamp": {
@@ -154,12 +187,16 @@ def control_panel(request):
         "tesla_power": tesla_power,
         "tesla_energy": tesla_energy,
         "solar_today": solar_today,
+        "soils_power_pv1": soils_power_pv1,
+        "soils_power_pv2": soils_power_pv2,
         "coffee_energy": coffee_energy,
         "washing_status": washing_status,
         "washing_machine_delay": washing_machine_delay,
         "home_server_power": home_server_power,
-        "low_cost_time": low_cost_time,
         "devices": devices, 
+        "low_cost_start": low_cost_start,
+        "low_cost_end": low_cost_end,
+        "show_popup": show_popup,
     }
 
     return render(request, "dashboard/control.html", context)
@@ -177,15 +214,20 @@ def set_washing_machine_delay(request):
 
 def set_low_cost_time(request):
     if request.method == "POST":
-        time_str = request.POST.get("low_cost_time")
-        if time_str:
-            
-            url = f"{BASE_URL}/services/input_datetime/set_datetime"
-            data = {
-                "entity_id": "input_datetime.low_cost_time",
-                "time": time_str
-            }
-            requests.post(url, headers=HEADERS, json=data)
+        start_time = request.POST.get("low_cost_start")
+        end_time = request.POST.get("low_cost_end")
+        if start_time and end_time:
+            # Call Home Assistant API to set both times
+            requests.post(
+                f"{BASE_URL}/services/input_datetime/set_datetime",
+                headers=HEADERS,
+                json={"entity_id": LOW_COST_START_ENTITY_ID, "time": start_time}
+            )
+            requests.post(
+                f"{BASE_URL}/services/input_datetime/set_datetime",
+                headers=HEADERS,
+                json={"entity_id": LOW_COST_END_ENTITY_ID, "time": end_time}
+            )
     return redirect("dashboard")
 
 def turn_on(entity_id, domain="light"):
