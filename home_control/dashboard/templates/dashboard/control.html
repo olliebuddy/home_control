@@ -1,315 +1,327 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home Assistant Control Panel</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f6f6f6;
-            margin: 0;
-            padding: 20px;
-        }
+  <title>Home Assistant Control Panel</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
 
-        h1 {
-            background-color: #1e90ff;
-            color: white;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 30px;
-        }
+    h1 {
+      background: linear-gradient(to right, #007bff, #00c6ff);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+      text-align: center;
+    }
 
-        .sensor-section {
-            background-color: #ffffff;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-        }
+    .section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
 
-        .sensor-section p {
-            font-size: 1.1em;
-            margin: 8px 0;
-        }
+    .section h2, .section h3 {
+      margin-top: 0;
+      color: #007bff;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
 
-        .offpeak {
-            color: green;
-            font-weight: bold;
-            margin-top: -5px;
-        }
+    p {
+      font-size: 1.05em;
+      margin: 8px 0;
+    }
 
-        .time-box {
-            font-size: 1.6em;
-            font-weight: bold;
-            background-color: #eef;
-            padding: 10px;
-            display: inline-block;
-            margin-bottom: 10px;
-            border-radius: 6px;
-        }
+    .offpeak {
+      color: green;
+      font-weight: bold;
+    }
 
-        form {
-            margin-bottom: 12px;
-        }
+    .time-box {
+      font-size: 1.5em;
+      font-weight: bold;
+      background-color: #e3f2fd;
+      color: #0277bd;
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 10px;
+    }
 
-        button {
-            background-color: #2e8b57;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            font-size: 1em;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+    form {
+      display: inline;
+      margin-right: 10px;
+    }
 
-        button:hover {
-            background-color: #246f48;
-        }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 0.95em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
 
-        
-        .form-wrapper {
-            margin-left: 8px;
-            margin-top: 15px;
-        }
+    button:hover {
+      background-color: #0056b3;
+    }
 
-        h2 {
-            margin-bottom: 12px;
-            color: #333;
-        }
+    .btn-danger {
+      background-color: #dc3545;
+    }
 
-         {
-            color: #444;
-            font-size: 1.1em;
-        }
-    </style>
+    .btn-danger:hover {
+      background-color: #b02a37;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+    }
+
+    .btn-success:hover {
+      background-color: #1e7e34;
+    }
+
+    input[type="time"],
+    input[type="number"] {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #2ecc71;
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <h1>Home Assistant Dashboard</h1>
 
-    <div class="sensor-section">
-        <h3>Devices Monitoring</h3>
-        <p><strong>Rollercoaster Light Power:</strong> {{ roller_power }}</p>
-        <p><strong>Tesla Wall Connector Session Energy:</strong> {{ tesla_power }}</p>
-        <p><strong>Tesla Wall Connector Energy:</strong> {{ tesla_energy }}</p>
-        
-        <p><strong>Coffee Machine Power:</strong> {{ coffee_energy }}</p>
-        <p><strong>Home Server Power:</strong> {{ home_server_power }}</p>
+  <h1> Home Assistant Dashboard</h1>
 
-        <p><strong>Dining Lamp:</strong> {{ devices.dining_lamp.watts }} W</p>
-        <p><strong>Bedside Lamp:</strong> {{ devices.bedside_lamp.watts }} W</p>
-        <p><strong>Cupboard Lights:</strong> {{ devices.cupboard_lights.watts }} W</p>
-        <p><strong>Kitchen Bench Socket:</strong> {{ devices.kitchen_bench.watts }} W</p>
-    </div>
+  <div class="section">
+    <h3>Devices Monitoring</h3>
+    <p><strong>Rollercoaster Light Power:</strong> {{ roller_power }}</p>
+    <p><strong>Tesla Wall Connector Session Energy:</strong> {{ tesla_power }}</p>
+    <p><strong>Tesla Wall Connector Energy:</strong> {{ tesla_energy }}</p>
+    <p><strong>Coffee Machine Power:</strong> {{ coffee_energy }}</p>
+    <p><strong>Home Server Power:</strong> {{ home_server_power }}</p>
+    <p><strong>Dining Lamp:</strong> {{ devices.dining_lamp.watts }} W</p>
+    <p><strong>Bedside Lamp:</strong> {{ devices.bedside_lamp.watts }} W</p>
+    <p><strong>Cupboard Lights:</strong> {{ devices.cupboard_lights.watts }} W</p>
+    <p><strong>Kitchen Bench Socket:</strong> {{ devices.kitchen_bench.watts }} W</p>
+  </div>
 
-    <div class="sensor-section">
-        <h3>Solar Panels</h3>
-        <p><strong>Solis DC Power PV1:</strong> {{ soils_power_pv1 }} </p>
-        <p><strong>Solis DC Power PV2:</strong> {{ soils_power_pv2 }} </p>
-        <p><strong>Solar Panel Energy Today:</strong> {{ solar_today }} </p>
-    </div>
+  <div class="section">
+    <h3>Solar Panels</h3>
+    <p><strong>Solis DC Power PV1:</strong> {{ soils_power_pv1 }}</p>
+    <p><strong>Solis DC Power PV2:</strong> {{ soils_power_pv2 }}</p>
+    <p><strong>Solar Panel Energy Today:</strong> {{ solar_today }}</p>
+  </div>
 
-    <div class="sensor-section">
-        <h2>Live Time (Sydney)</h2>
-        <p class="time-box" id="sydney-time">Loading...</p>
-        <p class="offpeak" id="off-peak-message"></p>
-    </div>
-    
-    <div class="sensor-section">
+  <div class="section">
+    <h2>Live Time (Sydney)</h2>
+    <p class="time-box" id="sydney-time">Loading...</p>
+    <p class="offpeak" id="off-peak-message"></p>
+  </div>
+
+  <div class="section">
+    <div class="section">
         <h3>Controls</h3>
-    
-        <p><strong>Dining Lamp:</strong></p>
-        <form method="POST" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" name="dining_lamp_on">ON</button>
-        </form>
-        <form method="POST" style="display: inline; margin-left: 5px;">
-            {% csrf_token %}
-            <button type="submit" name="dining_lamp_off">OFF</button>
-        </form>
-    
-        <p><strong>Bedside Lamp:</strong></p>
-        <form method="POST" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" name="bedside_lamp_on">ON</button>
-        </form>
-        <form method="POST" style="display: inline; margin-left: 5px;">
-            {% csrf_token %}
-            <button type="submit" name="bedside_lamp_off">OFF</button>
-        </form>
-    
-        <p><strong>Cupboard Lights:</strong></p>
-        <form method="POST" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" name="cupboard_lights_on">ON</button>
-        </form>
-        <form method="POST" style="display: inline; margin-left: 5px;">
-            {% csrf_token %}
-            <button type="submit" name="cupboard_lights_off">OFF</button>
-        </form>
-    
-        <p><strong>Coffee Machine:</strong></p>
-        <form method="POST" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" name="coffee_machine_on">ON</button>
-        </form>
-        <form method="POST" style="display: inline; margin-left: 5px;">
-            {% csrf_token %}
-            <button type="submit" name="coffee_machine_off">OFF</button>
-        </form>
-    
-        <p><strong>Kitchen Bench Socket:</strong></p>
-        <form method="POST" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" name="kitchen_bench_on">ON</button>
-        </form>
-        <form method="POST" style="display: inline; margin-left: 5px;">
-            {% csrf_token %}
-            <button type="submit" name="kitchen_bench_off">OFF</button>
-        </form>
-        
-        <p><strong>Roller Coaster Lights:</strong></p>
-        <form method="post" style="display: inline; margin-bottom: 10px;">
-            {% csrf_token %}
-            <button type="submit" name="roller_coaster_lights_on" class="btn btn-success">ON</button>
-        </form>
-        <form method="post" style="display: inline; margin-left: 5px;">
-             {% csrf_token %}
-             <button type="submit" name="roller_coaster_lights_off" class="btn btn-danger">OFF</button>
-        </form>
-
-        <p><strong>Home Server Power:</strong></p>
-        <form method="POST" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" name="home_server_on">ON</button>
-        </form>
-        <form method="POST" style="display: inline; margin-left: 5px;">
-            {% csrf_token %}
-            <button type="submit" name="home_server_off">OFF</button>
-        </form>
-
-        <p><strong>Garage Door:</strong></p>
-        <form method="post" style="display: inline; margin-bottom: 10px;">
-            {% csrf_token %}
-            <button type="submit" name="garage_door_on" class="btn btn-success">ON</button>
-        </form>
-        <form method="post" style="display: inline; margin-left: 5px;">
-            {% csrf_token %}
-            <button type="submit" name="garage_door_off" class="btn btn-danger">OFF</button>
-        </form>
-    </div>
-
-    <div class="washing-machine-section" style="margin-top: 40px; padding: 20px; border: 2px solid #ccc; border-radius: 10px;">
-        <h2>Washing Machine</h2>
-        <p><strong>Status:</strong> {{ washing_status }}</p>
-        <p><strong>Hours Remaining:</strong> {{ washing_machine_delay }}</p>
       
-        <form method="POST" action="{% url 'set_washing_machine_delay' %}"> 
-            {% csrf_token %}
-            <label for="washing_delay">Set Delay (hours):</label>
-            <input type="number" id="washing_delay" name="washing_delay" min="0" max="24" required>
-            <button type="submit">Set Delay</button>
-        </form>    
+        <p><strong>Dining Lamp:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="dining_lamp_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="dining_lamp_off" class="btn btn-danger">OFF</button>
+        </form>
+      
+        <p><strong>Bedside Lamp:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="bedside_lamp_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="bedside_lamp_off" class="btn btn-danger">OFF</button>
+        </form>
+      
+        <p><strong>Cupboard Lights:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="cupboard_lights_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="cupboard_lights_off" class="btn btn-danger">OFF</button>
+        </form>
+      
+        <p><strong>Coffee Machine:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="coffee_machine_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="coffee_machine_off" class="btn btn-danger">OFF</button>
+        </form>
+      
+        <p><strong>Kitchen Bench Socket:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="kitchen_bench_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="kitchen_bench_off" class="btn btn-danger">OFF</button>
+        </form>
+      
+        <p><strong>Roller Coaster Lights:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="roller_coaster_lights_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="roller_coaster_lights_off" class="btn btn-danger">OFF</button>
+        </form>
+      
+        <p><strong>Home Server Power:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="home_server_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="home_server_off" class="btn btn-danger">OFF</button>
+        </form>
+      
+        <p><strong>Garage Door:</strong></p>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="garage_door_on" class="btn btn-success">ON</button>
+        </form>
+        <form method="POST">{% csrf_token %}
+          <button type="submit" name="garage_door_off" class="btn btn-danger">OFF</button>
+        </form>
     </div>
-  
-    </div>
-  </body>
-  </html>
- 
-  
+    
 
-  <div class="spa-section" style="margin-top: 40px; padding: 20px; border: 2px solid #ccc; border-radius: 10px;">
-    <h2>Spa</h2>
-  
-    <p><strong>Spa Light:</strong></p>
-    <form method="post" style="display: inline; margin-bottom: 10px;">
+    {% for device in control_devices %}
+    <p><strong>{{ device.name }}:</strong></p>
+    <form method="POST">{% csrf_token %}
+      <button type="submit" name="{{ device.key }}_on" class="btn btn-success">ON</button>
+    </form>
+    <form method="POST">{% csrf_token %}
+      <button type="submit" name="{{ device.key }}_off" class="btn btn-danger">OFF</button>
+    </form>
+    {% endfor %}
+  </div>
+
+  <div class="section">
+    <h2>Washing Machine</h2>
+    <p><strong>Status:</strong> {{ washing_status }}</p>
+    <p><strong>Hours Remaining:</strong> {{ washing_machine_delay }}</p>
+    <form method="POST" action="{% url 'set_washing_machine_delay' %}">
       {% csrf_token %}
+      <label for="washing_delay">Set Delay (hours):</label>
+      <input type="number" id="washing_delay" name="washing_delay" min="0" max="24" required>
+      <button type="submit">Set Delay</button>
+    </form>
+  </div>
+
+  <div class="section">
+    <h2>Spa</h2>
+    <p><strong>Spa Light:</strong></p>
+    <form method="post">{% csrf_token %}
       <button type="submit" name="spa_light_on" class="btn btn-success">ON</button>
     </form>
-    <form method="post" style="display: inline; margin-left: 5px;">
-      {% csrf_token %}
+    <form method="post">{% csrf_token %}
       <button type="submit" name="spa_light_off" class="btn btn-danger">OFF</button>
     </form>
-  
+
     <p><strong>Spa Pump 1:</strong></p>
-    <form method="post" style="display: inline; margin-bottom: 10px;">
-      {% csrf_token %}
+    <form method="post">{% csrf_token %}
       <button type="submit" name="spa_pump_1_on" class="btn btn-success">ON</button>
     </form>
-    <form method="post" style="display: inline; margin-left: 5px;">
-      {% csrf_token %}
+    <form method="post">{% csrf_token %}
       <button type="submit" name="spa_pump_1_off" class="btn btn-danger">OFF</button>
     </form>
-  
+
     <p><strong>Spa Pump 2:</strong></p>
-    <form method="post" style="display: inline;">
-      {% csrf_token %}
+    <form method="post">{% csrf_token %}
       <button type="submit" name="spa_pump_2_on" class="btn btn-success">ON</button>
     </form>
-    <form method="post" style="display: inline; margin-left: 5px;">
-      {% csrf_token %}
+    <form method="post">{% csrf_token %}
       <button type="submit" name="spa_pump_2_off" class="btn btn-danger">OFF</button>
     </form>
   </div>
-   
 
-  <div class="sensor-section" style="margin-top: 40px;">
+  <div class="section">
     <h2>Low-Cost Electricity Time</h2>
-  
     <form method="POST" action="{% url 'set_low_cost_time' %}">
       {% csrf_token %}
       <label for="low_cost_start">Start Time:</label>
-      <input type="time" id="low_cost_start" name="low_cost_start" value="{{ low_cost_start }}" required>
-      <br><br>
+      <input type="time" id="low_cost_start" name="low_cost_start"
+             value="{{ low_cost_start }}" required>
       <label for="low_cost_end">End Time:</label>
-      <input type="time" id="low_cost_end" name="low_cost_end" value="{{ low_cost_end }}" required>
-      <br><br>
-      <button type="submit">Set Low-Cost Time Range</button>
+      <input type="time" id="low_cost_end" name="low_cost_end"
+             value="{{ low_cost_end }}" required>
+      <button type="submit">Set Low-Cost Time</button>
     </form>
-  
     <p><strong>Current Start:</strong> {{ low_cost_start }}</p>
     <p><strong>Current End:</strong> {{ low_cost_end }}</p>
   </div>
-  
+
   {% if show_popup %}
-  <div style="position: fixed; bottom: 20px; right: 20px;
-              background-color: #2ecc71; color: white;
-              padding: 16px; border-radius: 8px;
-              box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);">
+  <div class="popup">
     ⚡ You're currently in the Low-Cost Electricity period!
   </div>
   {% endif %}
 
   <script>
     function updateSydneyTime() {
-        const now = new Date().toLocaleString("en-AU", {
-            timeZone: "Australia/Sydney",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false
-        });
+      const now = new Date().toLocaleString("en-AU", {
+        timeZone: "Australia/Sydney",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      });
 
-        const date = new Date();
-        const hours = date.toLocaleString("en-AU", {
-            timeZone: "Australia/Sydney",
-            hour: '2-digit',
-            hour12: false
-        });
-        const hourInt = parseInt(hours, 10);
+      const hour = new Date().toLocaleString("en-AU", {
+        timeZone: "Australia/Sydney",
+        hour: "2-digit",
+        hour12: false
+      });
 
-        const message = document.getElementById("off-peak-message");
-        if ((hourInt >= 0 && hourInt < 5) || (hourInt >= 11 && hourInt < 14)) {
-            message.textContent =
-                "It is recommended to use power now. Rates are in off-peak period.";
-        } else {
-            message.textContent = "";
-        }
+      const message = document.getElementById("off-peak-message");
+      const hourInt = parseInt(hour, 10);
+      if ((hourInt >= 0 && hourInt < 5) || (hourInt >= 11 && hourInt < 14)) {
+        message.textContent = "It is recommended to use power now. Rates are off-peak. It would great time to turn on the washing machine and the Tesla Charger";
+      } else {
+        message.textContent = "";
+      }
 
-        document.getElementById("sydney-time").textContent = now;
+      document.getElementById("sydney-time").textContent = now;
     }
 
     setInterval(updateSydneyTime, 1000);
     updateSydneyTime();
-    </script>
+  </script>
+
 </body>
-</html>

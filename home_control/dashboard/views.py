@@ -120,9 +120,9 @@ def control_panel(request):
         elif "home_server_off" in request.POST:
             turn_off(HOME_SERVER_ENTITY_ID, domain="switch")
         elif "roller_coaster_lights_on" in request.POST:
-            turn_on(ROLLER_COASTER_LIGHTS_ENTITY_ID)
+            turn_on(ROLLER_COASTER_LIGHTS_ENTITY_ID, domain="switch")
         elif "roller_coaster_lights_off" in request.POST:
-            turn_off(ROLLER_COASTER_LIGHTS_ENTITY_ID)
+            turn_off(ROLLER_COASTER_LIGHTS_ENTITY_ID, domain="switch")
         elif "garage_door_on" in request.POST:
             turn_on(GARAGE_DOOR_ENTITY_ID, domain="switch")
         elif "garage_door_off" in request.POST:
@@ -143,19 +143,12 @@ def control_panel(request):
     low_cost_start = get_sensor_value(LOW_COST_START_ENTITY_ID).split()[0]
     low_cost_end = get_sensor_value(LOW_COST_END_ENTITY_ID).split()[0]
 
-    show_popup = False
     try:
-        now = datetime.now().time()
-        start = datetime.strptime(low_cost_start, "%H:%M:%S").time()
-        end = datetime.strptime(low_cost_end, "%H:%M:%S").time()
-
-        if start <= end:
-            show_popup = start <= now <= end
-        else:
-            # Handle overnight periods (e.g., 22:00 to 06:00)
-            show_popup = now >= start or now <= end
+     low_cost_start = low_cost_start_raw.split()[0] if ":" in low_cost_start_raw else None
+     low_cost_end = low_cost_end_raw.split()[0] if ":" in low_cost_end_raw else None
     except Exception:
-        pass
+      low_cost_start = None
+      low_cost_end = None
 
     devices = {
     "dining_lamp": {
@@ -196,9 +189,7 @@ def control_panel(request):
         "devices": devices, 
         "low_cost_start": low_cost_start,
         "low_cost_end": low_cost_end,
-        "show_popup": show_popup,
     }
-
     return render(request, "dashboard/control.html", context)
 
 def set_washing_machine_delay(request):
@@ -239,3 +230,4 @@ def turn_off(entity_id, domain="light"):
     url = f"{BASE_URL}/services/{domain}/turn_off"
     data = {"entity_id": entity_id}
     requests.post(url, headers=HEADERS, json=data)
+
